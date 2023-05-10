@@ -17,6 +17,7 @@ function draw() {
   stroke(255);
   rect(270,220,220,180,2,2,2,2);
 
+  //chikitos
   noStroke();
   fill(250, 207, 63, 150);
   rect(mouseX/3+100, mouseY/2+100, 180, 300,5,1,1,10);
@@ -30,4 +31,5 @@ function draw() {
   rect(mouseX*2-60,mouseY+30, 100,240,1,1,100,100);
   fill(209, 74, 63, 500);
   rect(200,mouseY-100, 23, 80,10,10,10,10);
+
 }
