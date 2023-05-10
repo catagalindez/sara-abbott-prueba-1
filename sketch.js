@@ -4,4 +4,5 @@ function setup() {
 
 function draw() {
   background(220);
+  rect(0,50,100,150);
 }
