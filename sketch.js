@@ -16,6 +16,7 @@ function setup () {
 function draw(){
     background(220,220,220,220)
 
+    // fondo
     let xoff = frameCount * 0.01;
       for( let i=0 ; i<width ; i++ ){
         let yoff = 0.0;
@@ -26,7 +27,7 @@ function draw(){
     //let valor = random(0 , height );
         let valor = noise( xoff, yoff );
 
-        let elColor = lerpColor( color(255,0,0) , color(0,0,255), valor);
+        let elColor = lerpColor( color(97,111,175) , color(250,90,142), valor);
 
         stroke( elColor );
         point(i,j);
