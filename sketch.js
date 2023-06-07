@@ -1,5 +1,5 @@
 let arreglo = [];
-let cantidad = 13;
+let cantidad = 8;
 
 function preload(){
     for( let i=0 ; i<cantidad ; i++){
@@ -19,7 +19,6 @@ function draw(){
     let cual = int( random(cantidad));
     let x = random( width/2 );
     let y = random( height/2 );
-
-    tint( random(255),random(255),random(255), 50 );
+    
     image( arreglo[cual] , x, y);
 }
