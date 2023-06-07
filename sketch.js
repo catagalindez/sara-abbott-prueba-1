@@ -10,15 +10,15 @@ function preload(){
   }
 
 function setup () {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(800, 800);
 }
 
 function draw(){
     background(220,220,220)
 
     let cual = int( random(cantidad));
-    let x = random( width/2 );
-    let y = random( height/2 );
+    let x = random( width );
+    let y = random( height );
     
     image( arreglo[cual] , x, y);
 }
