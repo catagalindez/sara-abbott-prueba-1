@@ -32,6 +32,10 @@ let lineasY3;
 let lineasAncho3;
 let lineasAlto3;
 
+let colorPixelX1, colorPixelY1;
+let colorPixelX2, colorPixelY2;
+let colorPixelX3, colorPixelY3;
+
 function preload() {
   for (let i = 0; i < cantidad; i++) {
     let nombre = "data/figura" + nf(i, 2) + ".png";
@@ -52,6 +56,7 @@ function setup() {
   angleMode(DEGREES);
   anguloPrincipal = random(0, 500);
 
+  //LIMITES PARA LAS LINEAS
   lineasCual = int(random(0,cantidad));
   lineasX = int(random(width / 30, width-width/2));
   lineasY = int(random(height / 30, height / 2 - height / 7));
@@ -68,44 +73,19 @@ function setup() {
   lineasAlto3 = int( random(400, 500));
   lineasAncho3 = random(350, 400);
   
-  image(arte1,0,0);
-  color1 = get(lineasX,lineasY);
-  image(arte3,0,0);
-  color2= get(lineasX2,lineasY2);
-  image(arte3,0,0);
-  color3= get(lineasX3,lineasY3);
-
-  
+  seleccionDeColores();
   background (color2);
-
-  image(textura1,0,0,width,height);
-  image(textura2,0,0,width,height);
+ // image(textura1,0,0,width,height);
+ // image(textura2,0,0,width,height);
 }
 
 function draw() {
+  //FONDO
   background(color2);
   tint(color3,10);
   image(textura4,0,0,width,height);
   
-  
-
-  // fondo
-  // let xoff = frameCount * 0.01;
-  //   for( let i=0 ; i<width ; i++ ){
-  //     let yoff = 0.0;
-  //     xoff += 0.01;
-
-  //   for( let j=0 ; j<height ; j++ ){
-  //     yoff += 0.01;
-  // //let valor = random(0 , height );
-  //     let valor = noise( xoff, yoff );
-
-  //     let elColor = lerpColor( color(97,111,175) , color(250,90,142), valor);
-
-  //     stroke( elColor );
-  //     point(i,j);
-  //    }
-  // }
+/*
   push();
   tint(0);
   image (arreglo[lineasCual],lineasX,lineasY,lineasAncho,lineasAlto);
@@ -114,6 +94,9 @@ function draw() {
   tint(0);
   image (arreglo[lineasCual3],lineasX3,lineasY3,lineasAncho3,lineasAlto3);
   pop();
+*/
+  dibujarLineas();
+
   //LLAMA CUADRADOS RELLENOS
   push();
   translate(width / 2, height / 2);
@@ -121,14 +104,17 @@ function draw() {
   dibujarCuadrado1();
   dibujarCuadrado2();
   dibujarCuadrado3();
-  pop();
 
+  dibujarFusionColor1();
+  pop();
   
   // MIDE VELOCIDADES
   var difX = abs(mouseX - pmouseX);
   var difY = abs(mouseY - pmouseY);
   var velRaton = floor(difX + difY);
 
+
+  //MOVIMIENTO DE CUADRADOS
   if (velRaton >= 50) {
     velCuadrados++;
   } else {
@@ -137,12 +123,16 @@ function draw() {
     }
   }
 
+  //ROTACION DE CUADRADOS 
   if (velRaton >= 200) {
     velRotacion++;
   } else {
     if (velRotacion > 0) {
       velRotacion--;
     }
+  }
+  if(velRaton >=300) {
+    seleccionDeColores();
   }
 }
 
@@ -358,4 +348,26 @@ function dibujarCuadrado3() {
   );
   endShape();
   pop();
+}
+
+function dibujarFusionColor1() {
+  
+}
+function dibujarLineas(){
+  push();
+  tint(0);
+  image (arreglo[lineasCual],lineasX,lineasY,lineasAncho,lineasAlto);
+  tint(255);
+  image (arreglo[lineasCual2],lineasX2,lineasY2,lineasAncho2,lineasAlto2);
+  tint(0);
+  image (arreglo[lineasCual3],lineasX3,lineasY3,lineasAncho3,lineasAlto3);
+  pop();
+}
+
+function seleccionDeColores(){
+  
+
+  color1 = arte1.get(lineasX,lineasY);
+  color2= arte3.get(lineasX2,lineasY2);
+  color3= arte3.get(lineasX3,lineasY3);
 }
