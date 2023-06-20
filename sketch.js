@@ -85,16 +85,7 @@ function draw() {
   tint(color3,10);
   image(textura4,0,0,width,height);
   
-/*
-  push();
-  tint(0);
-  image (arreglo[lineasCual],lineasX,lineasY,lineasAncho,lineasAlto);
-  tint(255);
-  image (arreglo[lineasCual2],lineasX2,lineasY2,lineasAncho2,lineasAlto2);
-  tint(0);
-  image (arreglo[lineasCual3],lineasX3,lineasY3,lineasAncho3,lineasAlto3);
-  pop();
-*/
+
   dibujarLineas();
 
   //LLAMA CUADRADOS RELLENOS
@@ -104,8 +95,6 @@ function draw() {
   dibujarCuadrado1();
   dibujarCuadrado2();
   dibujarCuadrado3();
-
-  dibujarFusionColor1();
   pop();
   
   // MIDE VELOCIDADES
@@ -113,8 +102,7 @@ function draw() {
   var difY = abs(mouseY - pmouseY);
   var velRaton = floor(difX + difY);
 
-
-  //MOVIMIENTO DE CUADRADOS
+  //CALCULA EL MOVIMIENTO DE LOS CUADRADOS RELLENOS
   if (velRaton >= 50) {
     velCuadrados++;
   } else {
@@ -123,7 +111,7 @@ function draw() {
     }
   }
 
-  //ROTACION DE CUADRADOS 
+  //CALCULA LA ROTACION DE LOS CUADRADOS RELLENOS
   if (velRaton >= 200) {
     velRotacion++;
   } else {
@@ -131,6 +119,8 @@ function draw() {
       velRotacion--;
     }
   }
+
+
   if(velRaton >=300) {
     seleccionDeColores();
   }
@@ -353,6 +343,7 @@ function dibujarCuadrado3() {
 function dibujarFusionColor1() {
   
 }
+
 function dibujarLineas(){
   push();
   tint(0);
@@ -365,8 +356,6 @@ function dibujarLineas(){
 }
 
 function seleccionDeColores(){
-  
-
   color1 = arte1.get(lineasX,lineasY);
   color2= arte3.get(lineasX2,lineasY2);
   color3= arte3.get(lineasX3,lineasY3);
