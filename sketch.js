@@ -10,16 +10,8 @@ var angulo1 = 0;
 var angulo2 = 0;
 var angulo3 = 0;
 let anguloPrincipal = 0;
-let startOnce = true;
-let fusionPos = true;
 
-let fusion1;
-let fusion2;
-let fusion3;
-let fusion4;
-let canvasFusionAlto = 550;
-let canvasFusionAncho = 550;
-
+//COLOR
 var color1;
 var color2;
 var color2;
@@ -28,6 +20,14 @@ let colorPixelX2, colorPixelY2;
 let colorPixelX3, colorPixelY3;
 let reiniciarColor = true;
 
+//FUSION
+let imagenFusion = [];
+let fusionForma = [];
+let cantFormas = 30
+let cantFusion;
+let fusionReset = true;
+
+//LINEAS
 let lineasCual;
 let lineasX;
 let lineasY;
@@ -49,13 +49,15 @@ function preload() {
     let nombre = "data/figura" + nf(i, 2) + ".png";
     arreglo[i] = loadImage(nombre);
   }
+  //FUSION
+  for (let i = 0; i < cantFormas; i++){
+    let nombre = "data/forma" + nf(i,2) + ".png";
+    imagenFusion[i] = loadImage(nombre);
+  }
   arte1 = loadImage("data/art1.png");
   arte2 = loadImage("data/art2.png");
   arte3 = loadImage("data/art3.png");
-  textura1 = loadImage("data/textura1.png");
-  textura2 = loadImage("data/textura2.png");
-  textura3 = loadImage("data/textura3.png");
-  textura4 = loadImage("data/textura4.png");
+  textura = loadImage("data/textura4.png");
 }
 
 function setup() {
@@ -63,12 +65,12 @@ function setup() {
   angleMode(DEGREES);
   anguloPrincipal = random(0, 500);
   anguloFusionPrincipal = random(0, 360);
-
-  fusion1 = createGraphics(canvasFusionAlto, canvasFusionAncho);
-  fusion2 = createGraphics(canvasFusionAlto, canvasFusionAncho);
-  fusion3 = createGraphics(canvasFusionAlto, canvasFusionAncho);
-  fusion4 = createGraphics(canvasFusionAlto, canvasFusionAncho);
-  randomizadorFusion();
+  
+  //FUSION
+  resetearFusion();
+  for (let i = 0; i < cantFusion; i++) {
+    fusionForma.push(new Fusion());
+  }
 
   //RANDOMIZADOR PARA LAS LINEAS
   lineasCual = int(random(0, cantidad));
@@ -96,7 +98,7 @@ function draw() {
   seleccionDeColores();
   background(color2);
   tint(color3, 10);
-  image(textura4, 0, 0, width, height);
+  image(textura, 0, 0, width, height);
 
   //DIBUJA LOS CUADRADOS VACIOS
   dibujarLineas();
@@ -115,11 +117,10 @@ function draw() {
   girarFusion();
   translate(width / 2, height / 2);
   imageMode(CENTER);
-  rotate(anguloFusionPrincipal);
-  //dibujarFormaFusion1();
-  //dibujarFormaFusion2();
-  //dibujarFormaFusion3();
-  //dibujarFormaFusion4();
+  //rotate(anguloFusionPrincipal);
+  for (let i = 0; i < cantFusion; i++) {
+    fusionForma[i].dibujar();
+  }
   pop();
 
   // MIDE VELOCIDADES
@@ -151,6 +152,7 @@ function draw() {
   }
 }
 
+//CUADRADOS PRINCIPALES
 function dibujarCuadrado1() {
   push();
   translate(0, 0);
@@ -363,261 +365,8 @@ function dibujarCuadrado3() {
   endShape();
   pop();
 }
-/*
-function dibujarFormaFusion1() {
-  fusion1.beginShape(TESS);
-  fusion1.noStroke();
-  fusion1.fill(color2);
-  fusion1.vertex(fusionPosX1, fusionPosY1);
-  fusion1.bezierVertex(
-    fusionPosX1,
-    fusionPosY1,
-    fusionPosX1 + 20,
-    fusionPosY1 + 20,
-    fusionPosX2,
-    fusionPosY2
-  );
-  fusion1.bezierVertex(
-    fusionPosX2,
-    fusionPosY2,
-    fusionPosX2 + 50,
-    fusionPosY2 + 25,
-    fusionPosX3,
-    fusionPosY3
-  );
-  fusion1.bezierVertex(
-    fusionPosX3,
-    fusionPosY3,
-    fusionPosX3 - 50,
-    fusionPosY3 + 60,
-    fusionPosX4,
-    fusionPosY4
-  );
-  fusion1.bezierVertex(
-    fusionPosX4,
-    fusionPosY4,
-    fusionPosX4 - 90,
-    fusionPosY4 + 80,
-    fusionPosX5,
-    fusionPosY5
-  );
-  fusion1.bezierVertex(fusionPosX5, fusionPosY5);
-  fusion1.vertex(fusionPosX6, fusionPosY6);
-  fusion1.endShape();
 
-  //image(fusion1, 0, 0, 500, 500);
-  blend(
-    fusion1,
-    0,
-    0,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    DIFFERENCE
-  );
-  blend(
-    fusion1,
-    0,
-    0,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    HARD_LIGHT
-  );
-}
-
-function dibujarFormaFusion2() {
-  posX = fusionFijaPosX1;
-  posY = fusionFijaPosY1;
-
-  posRealX = posX - velCuadrados/2;
-  posRealY = posY - velCuadrados/2;
-  //fusion2.background(100);
-  fusion2.noStroke();
-  fusion2.fill(color3);
-  fusion2.beginShape();
-  fusion2.vertex(posX, posY);
-  fusion2.bezierVertex(posX, posY, posX + 100, posY - 5, posX + 230, posY + 20);
-  fusion2.bezierVertex(
-    posX + 230,
-    posY + 140,
-    posX + 290,
-    posY + 150,
-    posX + 10,
-    posY + 115
-  );
-  fusion2.vertex(posX + 10, posY + 115);
-  fusion2.endShape();
-  blend(
-    fusion2,
-    posRealX,
-    posRealY,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    DIFFERENCE
-  );
-  blend(
-    fusion2,
-    posRealX,
-    posRealY,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    HARD_LIGHT
-  );
-}
-
-function dibujarFormaFusion3() {
-  posX = fusionPosX2 - 50;
-  posY = fusionPosY2 + 450;
-  posRealX = 0 + velCuadrados/2;
-  posRealY= 0 + velCuadrados/3;
-
-  fusion3.noStroke();
-  fusion3.fill(color3);
-  fusion3.arc(posX, posY,  150 + velCuadrados/3, 150+velCuadrados/3, 0, PI + QUARTER_PI);
-  blend(
-    fusion3,
-    posRealX,
-    posRealY,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    DIFFERENCE
-  );
-  blend(
-    fusion3,
-    posRealX,
-    posRealY,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    HARD_LIGHT
-  );
-}
-
-function dibujarFormaFusion4() {
-  fusion4.beginShape(TESS);
-  fusion4.noStroke();
-  fusion4.fill(color2);
-  fusion4.vertex(fusionPosX1, fusionPosY1);
-  fusion4.bezierVertex(
-    fusionPosX5,
-    fusionPosY5,
-    fusionPosX5 + 20,
-    fusionPosY5 + 20,
-    fusionPosX2,
-    fusionPosY2
-  );
-  fusion4.bezierVertex(
-    fusionPosX2,
-    fusionPosY2,
-    fusionPosX2 + 50,
-    fusionPosY2 + 25,
-    fusionPosX4,
-    fusionPosY3
-  );
-  fusion4.bezierVertex(
-    fusionPosX4,
-    fusionPosY3,
-    fusionPosX4 - 50,
-    fusionPosY3 + 60,
-    fusionPosX3,
-    fusionPosY4
-  );
-  fusion4.bezierVertex(
-    fusionPosX4,
-    fusionPosY3,
-    fusionPosX3 - 90,
-    fusionPosY4 + 80,
-    fusionPosX6,
-    fusionPosY6
-  );
-  fusion4.bezierVertex(fusionPosX6, fusionPosY6);
-  fusion4.vertex(fusionPosX5, fusionPosY5);
-  fusion4.endShape();
-  blend(
-    fusion4,
-    0,
-    0,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto + canvasFusionAlto / 15,
-    canvasFusionAncho + canvasFusionAncho / 15,
-    DIFFERENCE
-  );
-  blend(
-    fusion4,
-    0,
-    0,
-    canvasFusionAlto,
-    canvasFusionAncho,
-    -canvasFusionAncho / 2,
-    -canvasFusionAlto / 2,
-    canvasFusionAlto + canvasFusionAlto / 15,
-    canvasFusionAncho + canvasFusionAncho / 15,
-    HARD_LIGHT
-  );
-}*/
-
-function randomizadorFusion() {
-  fusionPosX1 = random(0, canvasFusionAncho / 2);
-  fusionPosY1 = random(canvasFusionAlto / 2, canvasFusionAlto);
-  fusionPosX2 = random(canvasFusionAlto / 2, canvasFusionAncho);
-  fusionPosY2 = random(0, canvasFusionAlto / 4);
-  fusionPosX3 = random(
-    canvasFusionAncho - canvasFusionAncho / 2,
-    canvasFusionAncho
-  );
-  fusionPosY3 = random(
-    canvasFusionAlto - canvasFusionAlto / 3,
-    canvasFusionAlto
-  );
-  fusionPosX4 = random(0, canvasFusionAncho / 2);
-  fusionPosY4 = random(canvasFusionAlto / 2, canvasFusionAlto);
-  fusionPosX5 = random(
-    canvasFusionAncho - canvasFusionAncho / 3,
-    canvasFusionAncho
-  );
-  fusionPosY5 = random(canvasFusionAlto / 5, canvasFusionAlto);
-  fusionPosX6 = random(0, canvasFusionAncho);
-  fusionPosY6 = random(0, canvasFusionAlto);
-
-  fusionFijaPosX1 = random(
-    canvasFusionAncho / 3,
-    canvasFusionAncho - canvasFusionAncho / 3
-  );
-  fusionFijaPosY1 = random(
-    canvasFusionAlto / 3,
-    canvasFusionAncho - canvasFusionAncho / 3
-  );
-}
-
-function girarFusion() {
-  anguloFusionPrincipal = anguloFusionPrincipal - velRotacion / 15;
-}
-
+//CUADRADOS LINEAS
 function dibujarLineas() {
   push();
   tint(0);
@@ -629,6 +378,44 @@ function dibujarLineas() {
   pop();
 }
 
+//FUSION
+class Fusion{
+  constructor(){
+    let minPosX = -width/2+width/8;
+    let maxPosX = width/2-width/7;
+    let minPosY = -height/2+height/8;
+    let maxPosY = height/2-height/7;
+    this.x = round(random(minPosX,maxPosX));
+    this.y = round(random(minPosY,maxPosY));
+    this.anchoalto = round(random(100,200));
+    this.rotacion = random (0,360);
+    this.imgRandom = round(random(0,cantFormas));
+  }
+  dibujar() {
+    push();
+    tint(color2);
+    blendMode(DIFFERENCE);
+    translate(this.x,this.y);
+    rotate(this.rotacion);
+    image(imagenFusion[this.imgRandom],0,0, this.anchoalto, this.anchoalto);
+    pop();
+    //blend(imagenFusion[this.imgRandom], 0, 0, 300, 300, this.x, this.y, this.anchoalto, this.anchoalto,DIFFERENCE);
+    
+  }
+}
+
+function resetearFusion(){
+  if(fusionReset == true){
+    cantFusion = round(random(10,15));
+    fusionReset = false;
+  }
+}
+
+function girarFusion() {
+  anguloFusionPrincipal = anguloFusionPrincipal - velRotacion / 15;
+}
+
+//COLOR
 function seleccionDeColores() {
   //SELECCIONA PIXEL DE IMAGENES
   color1 = arte1.get(colorPixelX1, colorPixelY1);
