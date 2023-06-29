@@ -8,27 +8,35 @@ var angulo1 = 0;
 var angulo2 = 0;
 var angulo3 = 0;
 let anguloPrincipal = 0;
+let arte1;
+let arte2;
+let arte3;
 
 //COLOR
 let randoArte;
-let randoArte2 = [];
 let colores = [];
 let variedad = 30;
 let arteRandom;
 let relleno;
-var color1;
-var color2;
-var color2;
+let _relleno;
+var color1, color2, color3, color4, color5, color6, color7, color8, color9;
 let colorPixelX1, colorPixelY1;
 let colorPixelX2, colorPixelY2;
 let colorPixelX3, colorPixelY3;
+let colorPixelX, colorPixelY;
 let reiniciarColor = true;
 
 //FUSION
 let imagenFusion = [];
-let fusionForma = [];
+let fusionForma1 = [];
+let fusionForma2 = [];
+let fusionForma3 = [];
+let fusionForma4 = [];
+let fusionForma5 = [];
+let fusionForma6 = [];
 let cantFormas = 30;
 let cantFusion;
+let minRotacion, maxRotacion, _minRotacion, _maxRotacion;
 let fusionReset = true;
 
 //LINEAS
@@ -48,6 +56,17 @@ let lineasY3;
 let lineasAncho3;
 let lineasAlto3;
 
+//TEXTURAS
+let texturas = []
+let cantTexturas = 6;
+let resetTextura = true;
+
+// //SONIDO
+let mic;
+let vol;
+let velConVol;
+let colorPrueba = 200;
+
 function preload() {
   for (let i = 0; i < cantidad; i++) {
     let nombre = "data/figura" + nf(i, 2) + ".png";
@@ -63,11 +82,17 @@ function preload() {
   //   let nombre = "data/art" + i + ".png";
   //   arte[i] = loadImage(nombre);
   // }
-  let arte1 = loadImage("data/art1.png");
-  let arte2 = loadImage("data/art2.png");
-  let arte3 = loadImage("data/art3.png");
-  arte = [arte1, arte2, arte3];
-  textura = loadImage("data/textura4.png");
+  arte1 = loadImage("data/art1.png");
+  arte2 = loadImage("data/art2.png");
+  arte3 = loadImage("data/art3.png");
+  // arte = [arte1, arte2, arte3];
+
+  //TEXTURAS
+  for (let i = 0; i < cantTexturas; i++){
+    let nombre = "data/textura" + i + ".png";
+    texturas[i] = loadImage(nombre);
+  }
+
 }
 
 function setup() {
@@ -76,10 +101,19 @@ function setup() {
   anguloPrincipal = random(0, 500);
   anguloFusionPrincipal = random(0, 360);
 
+  //SONIDO
+  mic = new p5.AudioIn();
+  mic.start();
+
   //FUSION
   resetearFusion();
   for (let i = 0; i < cantFusion; i++) {
-    fusionForma.push(new Fusion());
+    fusionForma1.push(new Fusion());
+    fusionForma2.push(new Fusion());
+    fusionForma3.push(new Fusion());
+    fusionForma4.push(new Fusion());
+    fusionForma5.push(new Fusion());
+    fusionForma6.push(new Fusion());
   }
 
   //RANDOMIZADOR PARA LAS LINEAS
@@ -100,11 +134,15 @@ function setup() {
   lineasAncho3 = random(350, 400);
 
   seleccionDeColores();
+  resetearTextura();
   background(color2);
 }
 
 function draw() {
   //FONDO
+  sonido();
+  resetearTextura();
+  resetearFusion();
   seleccionDeColores();
   background(color2);
   tint(color3, 10);
@@ -127,9 +165,20 @@ function draw() {
   girarFusion();
   translate(width / 2, height / 2);
   imageMode(CENTER);
-  //rotate(anguloFusionPrincipal);
+ // rotate(anguloFusionPrincipal);
   for (let i = 0; i < cantFusion; i++) {
-    fusionForma[i].dibujar();
+    fusionForma1[i].rotar(-5, 5);
+    fusionForma2[i].rotar(-2,2);
+    fusionForma3[i].rotar(3,-3);
+    fusionForma4[i].rotar(6,-6);
+    fusionForma5[i].rotar(-5,5);
+    fusionForma6[i].rotar(-4,4);
+    fusionForma1[i].dibujar(color4);
+    fusionForma2[i].dibujar(color5);
+    fusionForma3[i].dibujar(color6);
+    fusionForma4[i].dibujar(color7);
+    fusionForma5[i].dibujar(color8);
+    fusionForma6[i].dibujar(color9);
   }
   pop();
 
@@ -139,7 +188,7 @@ function draw() {
   var velRaton = floor(difX + difY);
 
   //CALCULA EL MOVIMIENTO DE LOS CUADRADOS RELLENOS
-  if (velRaton >= 50) {
+  if (velConVol >= 50) {
     velCuadrados++;
   } else {
     if (velCuadrados > 0) {
@@ -148,7 +197,7 @@ function draw() {
   }
 
   //CALCULA LA ROTACION DE LOS CUADRADOS RELLENOS
-  if (velRaton >= 200) {
+  if (velConVol >= 200) {
     velRotacion++;
   } else {
     if (velRotacion > 0) {
@@ -157,8 +206,36 @@ function draw() {
   }
 
   //CALCULA SI SE CAMBIAEL COLOR O NO
-  if (velRaton >= 500) {
+  if (velConVol >= 500) {
     reiniciarColor = true;
+    resetTextura = true;
+    fusionReset = true;
+  }
+
+  push();
+  fill(colorPrueba);
+  //ellipse(width/2, height/2, velConVol, velConVol);
+  fill(20);
+  textSize(100);
+  text('volumen: ' + velConVol, 100, 100);
+  pop();
+}
+
+//AUDIO
+function sonido(){
+  vol = mic.getLevel();
+  velConVol = map(vol,0,1,0,4000);
+  if(velConVol > 900){
+    colorPrueba = 20;
+  }
+  
+}
+
+//TEXTURAS
+function resetearTextura(){
+  if(resetTextura == true){
+    textura = random(texturas);
+    resetTextura = false;
   }
 }
 
@@ -391,20 +468,29 @@ function dibujarLineas() {
 //FUSION
 class Fusion {
   constructor() {
-    let minPosX = -width / 2 + width / 8;
-    let maxPosX = width / 2 - width / 7;
-    let minPosY = -height / 2 + height / 8;
-    let maxPosY = height / 2 - height / 7;
+    let minPosX = -width / 2 + width / 6;
+    let maxPosX = width / 2 - width / 6;
+    let minPosY = -height / 2 + height / 6;
+    let maxPosY = height / 2 - height / 6;
     this.x = round(random(minPosX, maxPosX));
     this.y = round(random(minPosY, maxPosY));
     this.anchoalto = round(random(100, 200));
     this.rotacion = random(0, 360);
+    this.altura;
     this.imgRandom = round(random(0, cantFormas));
-    }
+  }
 
-  dibujar() {
+  rotar(minRotacion,maxRotacion) {
+    _minRotacion = minRotacion;
+    _maxRotacion = maxRotacion;
+    this.altura = map(mouseY, 0, height, _minRotacion, _maxRotacion);
+    this.rotacion += this.altura;
+  }
+
+  dibujar(relleno) {
+    _relleno = relleno;
     push();
-    tint(color2);
+    tint(_relleno);
     blendMode(DIFFERENCE);
     translate(this.x, this.y);
     rotate(this.rotacion);
@@ -416,7 +502,7 @@ class Fusion {
 
 function resetearFusion() {
   if (fusionReset == true) {
-    cantFusion = round(random(10, 15));
+    cantFusion = round(random(2, 4));
     fusionReset = false;
   }
 }
@@ -430,30 +516,35 @@ function seleccionDeColores() {
   //RANDOMIZADOR DE PIXEL
   if (reiniciarColor == true) {
     randoArte = random(arte);
-    colorPixelX1 = int(random(0, width / 2));
-    colorPixelY1 = int(random(0, height / 2));
-    colorPixelX2 = int(random(0, width / 2));
-    colorPixelY2 = int(random(0, height / 2));
-    colorPixelX3 = int(random(0, width / 2));
-    colorPixelY3 = int(random(0, height / 2));
-    // for (let i; i < variedad; i++) {
-    //     colorPixelX = int(random(0, width / 2));
-    //     colorPixelY = int(random(0, height / 2));
-
-    //     colores[i] = random(arte).get(
-    //       colorPixelX,
-    //       colorPixelY
-    //       );      
-    // }
-    // relleno = random (colores);
-    
+    colorPixelX1 = int(random(0, width-width/3));
+    colorPixelY1 = int(random(0, height-height/3));
+    colorPixelX2 = int(random(0, width - width / 3));
+    colorPixelY2 = int(random(0, height-height/3));
+    colorPixelX3 = int(random(0, width - width / 3));
+    colorPixelY3 = int(random(0, height-height/3));
     reiniciarColor = false;
   } else {
   }
-  //SELECCIONA PIXEL DE IMAGENES
-  color1 = randoArte.get(colorPixelX1, colorPixelY1);
-  color2 = randoArte.get(colorPixelX2, colorPixelY2);
-  color3 = randoArte.get(colorPixelX3, colorPixelY3);
 
-  
+  //SELECCIONA PIXEL DE IMAGENES
+  color1 = arte1.get(colorPixelX1, colorPixelY1);
+  color2 = arte2.get(colorPixelX1, colorPixelY1);
+  color3 = arte3.get(colorPixelX1, colorPixelY1);
+  color4 = arte1.get(colorPixelX2, colorPixelY2);
+  color5 = arte2.get(colorPixelX2, colorPixelY2);
+  color6 = arte3.get(colorPixelX2, colorPixelY2);
+  color7 = arte1.get(colorPixelX3, colorPixelY3);
+  color8 = arte3.get(colorPixelX3, colorPixelY3);
+  color9 = arte3.get(colorPixelX3, colorPixelY3);
+  colores = [
+    color1,
+    color2,
+    color3,
+    color4,
+    color5,
+    color6,
+    color7,
+    color8,
+    color9,
+  ];
 }
