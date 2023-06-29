@@ -57,7 +57,7 @@ let lineasAncho3;
 let lineasAlto3;
 
 //TEXTURAS
-let texturas = []
+let texturas = [];
 let cantTexturas = 6;
 let resetTextura = true;
 
@@ -65,7 +65,9 @@ let resetTextura = true;
 let mic;
 let vol;
 let velConVol;
-let colorPrueba = 200;
+let pitch;
+let tono = 0;
+let audioContext;
 
 function preload() {
   for (let i = 0; i < cantidad; i++) {
@@ -78,21 +80,15 @@ function preload() {
     imagenFusion[i] = loadImage(nombre);
   }
   //ARTE
-  // for (let i = 1; i < 3; i++){
-  //   let nombre = "data/art" + i + ".png";
-  //   arte[i] = loadImage(nombre);
-  // }
   arte1 = loadImage("data/art1.png");
   arte2 = loadImage("data/art2.png");
   arte3 = loadImage("data/art3.png");
-  // arte = [arte1, arte2, arte3];
 
   //TEXTURAS
-  for (let i = 0; i < cantTexturas; i++){
+  for (let i = 0; i < cantTexturas; i++) {
     let nombre = "data/textura" + i + ".png";
     texturas[i] = loadImage(nombre);
   }
-
 }
 
 function setup() {
@@ -102,8 +98,10 @@ function setup() {
   anguloFusionPrincipal = random(0, 360);
 
   //SONIDO
+  audioContext = getAudioContext();
   mic = new p5.AudioIn();
-  mic.start();
+  mic.start(startPitch);
+  userStartAudio();
 
   //FUSION
   resetearFusion();
@@ -139,8 +137,10 @@ function setup() {
 }
 
 function draw() {
-  //FONDO
+  //SONIDO
   sonido();
+
+  //FONDO
   resetearTextura();
   resetearFusion();
   seleccionDeColores();
@@ -165,14 +165,14 @@ function draw() {
   girarFusion();
   translate(width / 2, height / 2);
   imageMode(CENTER);
- // rotate(anguloFusionPrincipal);
+  // rotate(anguloFusionPrincipal);
   for (let i = 0; i < cantFusion; i++) {
-    fusionForma1[i].rotar(-5, 5);
-    fusionForma2[i].rotar(-2,2);
-    fusionForma3[i].rotar(3,-3);
-    fusionForma4[i].rotar(6,-6);
-    fusionForma5[i].rotar(-5,5);
-    fusionForma6[i].rotar(-4,4);
+    fusionForma1[i].rotar(0, 5);
+    fusionForma2[i].rotar(0, 2);
+    fusionForma3[i].rotar(0, -3);
+    fusionForma4[i].rotar(0, -6);
+    fusionForma5[i].rotar(0, 5);
+    fusionForma6[i].rotar(0, 4);
     fusionForma1[i].dibujar(color4);
     fusionForma2[i].dibujar(color5);
     fusionForma3[i].dibujar(color6);
@@ -209,31 +209,44 @@ function draw() {
   if (velConVol >= 500) {
     reiniciarColor = true;
     resetTextura = true;
-    fusionReset = true;
   }
 
-  push();
-  fill(colorPrueba);
-  //ellipse(width/2, height/2, velConVol, velConVol);
-  fill(20);
-  textSize(100);
-  text('volumen: ' + velConVol, 100, 100);
-  pop();
+  // push();
+  // fill(20);
+  // textSize(50);
+  // text("volumen: " + velConVol, 70, 70);
+  // text("tono: " + tono, 70, 120);
+  // pop();
 }
 
 //AUDIO
-function sonido(){
+function sonido() {
   vol = mic.getLevel();
-  velConVol = map(vol,0,1,0,4000);
-  if(velConVol > 900){
-    colorPrueba = 20;
-  }
-  
+  velConVol = map(vol, 0, 1, 0, 4000);
+}
+
+function startPitch() {
+  pitch = ml5.pitchDetection("./model/", audioContext, mic.stream, modelLoaded);
+}
+
+function modelLoaded() {
+  reiniciarColor = true;
+  getPitch();
+}
+
+function getPitch() {
+  pitch.getPitch(function (err, frequency) {
+    if (frequency) {
+      tono = frequency;
+    } else {
+    }
+    getPitch();
+  })
 }
 
 //TEXTURAS
-function resetearTextura(){
-  if(resetTextura == true){
+function resetearTextura() {
+  if (resetTextura == true) {
     textura = random(texturas);
     resetTextura = false;
   }
@@ -476,15 +489,19 @@ class Fusion {
     this.y = round(random(minPosY, maxPosY));
     this.anchoalto = round(random(100, 200));
     this.rotacion = random(0, 360);
-    this.altura;
+    this.frequencia;
     this.imgRandom = round(random(0, cantFormas));
   }
 
-  rotar(minRotacion,maxRotacion) {
+  rotar(minRotacion, maxRotacion) {
     _minRotacion = minRotacion;
     _maxRotacion = maxRotacion;
-    this.altura = map(mouseY, 0, height, _minRotacion, _maxRotacion);
-    this.rotacion += this.altura;
+    this.frequencia = map(tono, 55, 1000, _minRotacion, _maxRotacion);
+    if (tono > 55){
+    this.rotacion += this.frequencia;
+    } else {
+      this.rotacion = this.rotacion;
+    }
   }
 
   dibujar(relleno) {
@@ -502,7 +519,7 @@ class Fusion {
 
 function resetearFusion() {
   if (fusionReset == true) {
-    cantFusion = round(random(2, 4));
+    cantFusion = round(random(1, 3));
     fusionReset = false;
   }
 }
@@ -516,12 +533,12 @@ function seleccionDeColores() {
   //RANDOMIZADOR DE PIXEL
   if (reiniciarColor == true) {
     randoArte = random(arte);
-    colorPixelX1 = int(random(0, width-width/3));
-    colorPixelY1 = int(random(0, height-height/3));
-    colorPixelX2 = int(random(0, width - width / 3));
-    colorPixelY2 = int(random(0, height-height/3));
-    colorPixelX3 = int(random(0, width - width / 3));
-    colorPixelY3 = int(random(0, height-height/3));
+    colorPixelX1 = int(random(0, width / 2));
+    colorPixelY1 = int(random(0, height / 2));
+    colorPixelX2 = int(random(0, width  / 2));
+    colorPixelY2 = int(random(0, height / 2));
+    colorPixelX3 = int(random(0, width / 2));
+    colorPixelY3 = int(random(0, height / 2));
     reiniciarColor = false;
   } else {
   }
