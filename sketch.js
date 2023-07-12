@@ -8,9 +8,6 @@ var angulo1 = 0;
 var angulo2 = 0;
 var angulo3 = 0;
 let anguloPrincipal = 0;
-let arte1;
-let arte2;
-let arte3;
 
 //COLOR
 let randoArte;
@@ -25,6 +22,11 @@ let colorPixelX2, colorPixelY2;
 let colorPixelX3, colorPixelY3;
 let colorPixelX, colorPixelY;
 let reiniciarColor = true;
+let coloresOverlay = [];
+let overlayExtra;
+let cuadradosRelleno;
+let cuadradosRellenoRandom;
+let idkbg;
 
 //FUSION
 let imagenFusion = [];
@@ -58,7 +60,7 @@ let lineasAlto3;
 
 //TEXTURAS
 let texturas = [];
-let cantTexturas = 6;
+let cantTexturas = 11;
 let resetTextura = true;
 
 // //SONIDO
@@ -83,12 +85,14 @@ function preload() {
   arte1 = loadImage("data/art1.png");
   arte2 = loadImage("data/art2.png");
   arte3 = loadImage("data/art3.png");
-
+  
   //TEXTURAS
   for (let i = 0; i < cantTexturas; i++) {
     let nombre = "data/textura" + i + ".png";
     texturas[i] = loadImage(nombre);
   }
+
+  idkbg = loadImage("data/idkbg.png");
 }
 
 function setup() {
@@ -96,6 +100,9 @@ function setup() {
   angleMode(DEGREES);
   anguloPrincipal = random(0, 500);
   anguloFusionPrincipal = random(0, 360);
+
+  //COLOR
+  //colorMode(HSB, 360, 100, 100);
 
   //SONIDO
   audioContext = getAudioContext();
@@ -143,10 +150,9 @@ function draw() {
   //FONDO
   resetearTextura();
   resetearFusion();
-  seleccionDeColores();
-  background(color2);
-  tint(color3, 10);
-  image(textura, 0, 0, width, height);
+  seleccionDeColores();  
+  background(overlayExtra);
+  fondo();
 
   //DIBUJA LOS CUADRADOS VACIOS
   dibujarLineas();
@@ -217,6 +223,10 @@ function draw() {
   // text("volumen: " + velConVol, 70, 70);
   // text("tono: " + tono, 70, 120);
   // pop();
+
+
+  overlayPorEncima();
+  
 }
 
 //AUDIO
@@ -241,7 +251,7 @@ function getPitch() {
     } else {
     }
     getPitch();
-  })
+  });
 }
 
 //TEXTURAS
@@ -261,7 +271,7 @@ function dibujarCuadrado1() {
   alto = 350;
   posX = -ancho / 2 - velCuadrados;
   posY = -alto / 2 - velCuadrados;
-  angulo1 = angulo1 + velRotacion / 9;
+  angulo1 = angulo1 + velRotacion / 15;
   minPosX = -width / 2 + ancho / 2 + ancho / 5;
   minPosY = -height / 2 + alto / 3;
   maxPosX = ancho - ancho / 3;
@@ -282,7 +292,7 @@ function dibujarCuadrado1() {
 
   beginShape();
   noStroke();
-  fill(color1);
+  fill(cuadradosRelleno);
   vertex(posX, posY);
   //linea arriba
   bezierVertex(
@@ -332,7 +342,7 @@ function dibujarCuadrado2() {
   alto = 250;
   posX = -ancho / 2 + velCuadrados;
   posY = -alto / 2 - velCuadrados;
-  angulo2 = angulo2 + velRotacion / 8;
+  angulo2 = angulo2 + velRotacion / 15;
   maxPosX = width / 4 - ancho / 2;
   minPosX = -width / 2 + ancho / 2;
   minPosY = -height / 2 + alto / 3;
@@ -353,7 +363,7 @@ function dibujarCuadrado2() {
 
   beginShape();
   noStroke();
-  fill(color1);
+  fill(cuadradosRelleno);
   vertex(posX, posY);
   //linea arriba
   bezierVertex(
@@ -407,7 +417,7 @@ function dibujarCuadrado3() {
   minPosX = -width / 2 + ancho / 2;
   maxPosY = height / 2 - alto * 3;
   minPosY = -height / 2 + alto;
-  angulo3 = angulo3 + velRotacion / 8;
+  angulo3 = angulo3 + velRotacion / 15;
 
   if (posX > maxPosX) {
     posX = maxPosX - 1;
@@ -424,7 +434,7 @@ function dibujarCuadrado3() {
 
   beginShape();
   noStroke();
-  fill(color1);
+  fill(cuadradosRelleno);
   vertex(posX, posY);
   //linea arriba
   bezierVertex(
@@ -497,8 +507,8 @@ class Fusion {
     _minRotacion = minRotacion;
     _maxRotacion = maxRotacion;
     this.frequencia = map(tono, 55, 1000, _minRotacion, _maxRotacion);
-    if (tono > 55){
-    this.rotacion += this.frequencia;
+    if (tono > 55) {
+      this.rotacion += this.frequencia;
     } else {
       this.rotacion = this.rotacion;
     }
@@ -512,14 +522,17 @@ class Fusion {
     translate(this.x, this.y);
     rotate(this.rotacion);
     image(imagenFusion[this.imgRandom], 0, 0, this.anchoalto, this.anchoalto);
-    pop();
+    tint(255,255,255,50);
+    blendMode(LIGHTEST);
+    image(imagenFusion[this.imgRandom], 0, 0, this.anchoalto, this.anchoalto);
     //blend(imagenFusion[this.imgRandom], 0, 0, 300, 300, this.x, this.y, this.anchoalto, this.anchoalto,DIFFERENCE);
+    pop();
   }
 }
 
 function resetearFusion() {
   if (fusionReset == true) {
-    cantFusion = round(random(1, 3));
+    cantFusion = round(random(1, 2));
     fusionReset = false;
   }
 }
@@ -538,21 +551,22 @@ function seleccionDeColores() {
     colorPixelX2 = int(random(0, width  / 2));
     colorPixelY2 = int(random(0, height / 2));
     colorPixelX3 = int(random(0, width / 2));
-    colorPixelY3 = int(random(0, height / 2));
+    colorPixelY3 = int(random(0, height / 2));    
+    overlayRandom = floor(random(0,2));
     reiniciarColor = false;
   } else {
   }
-
-  //SELECCIONA PIXEL DE IMAGENES
+  // //SELECCIONA PIXEL DE IMAGENES
   color1 = arte1.get(colorPixelX1, colorPixelY1);
   color2 = arte2.get(colorPixelX1, colorPixelY1);
   color3 = arte3.get(colorPixelX1, colorPixelY1);
-  color4 = arte1.get(colorPixelX2, colorPixelY2);
-  color5 = arte2.get(colorPixelX2, colorPixelY2);
-  color6 = arte3.get(colorPixelX2, colorPixelY2);
-  color7 = arte1.get(colorPixelX3, colorPixelY3);
-  color8 = arte3.get(colorPixelX3, colorPixelY3);
-  color9 = arte3.get(colorPixelX3, colorPixelY3);
+  color4 = color(197,45,42);
+  color5 = color(116,154,128);
+  color6 = color(110,126,198);
+  color7 = color(120,128,117);
+  color8 = color(255,255,255);
+  color9 = color(105,156,118);
+
   colores = [
     color1,
     color2,
@@ -564,4 +578,32 @@ function seleccionDeColores() {
     color8,
     color9,
   ];
+  coloresOverlay = [
+    color1, color2, color3
+  ];
+  overlayExtra = coloresOverlay[overlayRandom];
+  
+  if (overlayExtra != 2){
+    cuadradosRellenoRandom = overlayRandom+1;
+  } else {
+    cuadradosRellenoRandom = 0;
+  }
+  cuadradosRelleno = coloresOverlay[cuadradosRellenoRandom];
 }
+
+function fondo() {  
+  tint(overlayExtra);
+  blend(idkbg,0,0,idkbg.width,idkbg.height,0,0,width,height, MULTIPLY);
+  tint(overlayExtra);
+  blend(textura, 0, 0, textura.width, textura.height, 0, 0, width, height, DIFFERENCE);
+  overlayPorEncima();
+}
+
+function overlayPorEncima(){
+  push(); 
+  noStroke();
+  fill(overlayExtra,50);
+  blendMode(HARD_LIGHT);
+  rect(0, 0, width, height);
+  pop();
+};
