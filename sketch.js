@@ -70,6 +70,7 @@ let velConVol;
 let pitch;
 let tono = 0;
 let audioContext;
+let limiteCuadrados;
 
 function preload() {
   for (let i = 0; i < cantidad; i++) {
@@ -193,8 +194,9 @@ function draw() {
   var difY = abs(mouseY - pmouseY);
   var velRaton = floor(difX + difY);
 
+  
   //CALCULA EL MOVIMIENTO DE LOS CUADRADOS RELLENOS
-  if (velConVol >= 50) {
+  if (velConVol >= 50 && velCuadrados <= 150) {
     velCuadrados++;
   } else {
     if (velCuadrados > 0) {
@@ -217,12 +219,15 @@ function draw() {
     resetTextura = true;
   }
 
-  // push();
-  // fill(20);
-  // textSize(50);
-  // text("volumen: " + velConVol, 70, 70);
-  // text("tono: " + tono, 70, 120);
-  // pop();
+  
+
+
+  //  push();
+  //  fill(20);
+  //  textSize(50);
+  //  text("dist: " + velCuadrados, 70, 70);
+  // // text("tono: " + tono, 70, 120);
+  //  pop();
 
 
   overlayPorEncima();
